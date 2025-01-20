@@ -143,6 +143,7 @@ form {
   flex-wrap: wrap;
   justify-content: space-around;
   align-items: stretch;
+  height: 100;
 }
 
 .card {
@@ -205,4 +206,12 @@ form {
   #side-menu-toggle {
     display: none;
   }
+}
+
+image {
+  height: 100px;
+}
+
+image .img {
+  height: 100%;
 }
