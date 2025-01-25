@@ -1,37 +1,34 @@
-const { mongoConnect, getDb } = require("../util/database.js");
-
-const { mongoDB, ObjectId } = require("mongodb");
+const mongodb = require("mongodb");
+const getDb = require("../util/database").getDb;
 
 class Product {
-  constructor(title, description, price, imageUrl, id) {
+  constructor(title, price, description, imageUrl, id, userId) {
     this.title = title;
+    this.price = price;
     this.description = description;
     this.imageUrl = imageUrl;
-    this.price = price;
-    this._id = id;
+    this._id = id ? mongodb.ObjectId.createFromHexString(prodId) : null;
+    this.userId = userId;
   }
 
   save() {
     const db = getDb();
     let dbOp;
-
     if (this._id) {
-      console.log("****************");
-      let objId = this._id;
-      console.log("****************");
-      console.log(objId);
+      // Update the product
       dbOp = db
         .collection("products")
-        .updateOne({ _id: objId }, { $set: this });
+        .updateOne({ _id: this._id }, { $set: this });
     } else {
       dbOp = db.collection("products").insertOne(this);
     }
-
     return dbOp
       .then((result) => {
         console.log(result);
       })
-      .catch((err) => console.log(err));
+      .catch((err) => {
+        console.log(err);
+      });
   }
 
   static fetchAll() {
@@ -40,26 +37,41 @@ class Product {
       .collection("products")
       .find()
       .toArray()
+      .then((products) => {
+        console.log(products);
+        return products;
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  }
+
+  static findById(prodId) {
+    const db = getDb();
+    return db
+      .collection("products")
+      .find({ _id: prodId })
+      .next()
       .then((product) => {
         console.log(product);
         return product;
       })
-      .catch((err) => console.log(err));
+      .catch((err) => {
+        console.log(err);
+      });
   }
 
-  static findById(id) {
+  static deleteById(prodId) {
     const db = getDb();
-    const objId = ObjectId.createFromHexString(id);
-    console.log(objId);
     return db
       .collection("products")
-      .find({ _id: objId })
-      .next()
+      .deleteOne({ _id: mongodb.ObjectId.createFromHexString(prodId) })
       .then((result) => {
-        console.log(result);
-        return result;
+        console.log("Deleted");
       })
-      .catch((err) => console.log(err));
+      .catch((err) => {
+        console.log(err);
+      });
   }
 }
 
